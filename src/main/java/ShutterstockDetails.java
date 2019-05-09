@@ -3,40 +3,44 @@ import java.util.Arrays;
 
 public class ShutterstockDetails extends AgencyDetails {
 
-    String agencyContributorURL = "https://contributor-accounts.shutterstock.com/login";
-    String FTPURL =  "ftp.shutterstock.com";
+    ShutterstockDetails()
+    {
+        agencyContributorURL = "https://contributor-accounts.shutterstock.com/login";
+        FTPURL =  "ftp.shutterstock.com";
 
 
-    //  IMAGES SECTION
-    ArrayList<ImageFormat> AcceptedFormats =  new ArrayList<ImageFormat>(Arrays.asList(ImageFormat.JPEG, ImageFormat.TIFF, ImageFormat.EPS));
+        //  IMAGES SECTION
+        AcceptedFormats =  new ArrayList<ImageFormat>(Arrays.asList(ImageFormat.JPEG, ImageFormat.TIFF, ImageFormat.EPS));
 
-    //File size and megapixels limits
-    int JPEGfileSizeLimit;
-    int TIFFfileSizeLimit;
-    int EPSfileSizeLimit;
-    int minMP;
-    int maxMP;
-    //dimension limits
-    int minPixelsX;
-    int maxPixelsX;
-    int minPixelsY;
-    int maxPixelsY;
+        //File size and megapixels limits
+        JPEGfileSizeLimit = 50;
+        TIFFfileSizeLimit = 4000;
+        EPSfileSizeLimit = 50;
+        minMP = 4;
+        maxMP = Integer.MAX_VALUE;
 
-
-    //keyword limits
-    int minKeywordNumber;
-    int maxKeywordNumber;
+        //dimension limits
+        minPixelsX = 1;
+        maxPixelsX = Integer.MAX_VALUE;
+        minPixelsY = 1;
+        maxPixelsY = Integer.MAX_VALUE;
 
 
-    //Description Limits
-    int minDescriptionCharacterNumber;
-    int maxDescriptionCharacterNumber;
+        //keyword limits
+        minKeywordNumber = 8; //TODO make sure this is correct
+        maxKeywordNumber = 50;
 
 
-    //  Title Limits
-    int maxTitleLengthInChars;
-    int minTitleLengthInChars;
-    int maxTitleLengthInWords;
-    int minTitleLengthInWords;
+        //Description Limits
+        minDescriptionCharacterNumber = 20;//TODO make sure this is correct
+        maxDescriptionCharacterNumber = 200;//TODO make sure this is correct
+
+
+        //  Title Limits
+        maxTitleLengthInChars = Integer.MAX_VALUE;
+        minTitleLengthInChars = 0;
+        maxTitleLengthInWords = Integer.MAX_VALUE;
+        minTitleLengthInWords = 0;
+    }
 
 }

@@ -3,41 +3,41 @@ import java.util.ArrayList;
 
 public abstract class AgencyDetails {
 
-    private String agencyContributorURL;
-    private String FTPURL;
+    protected String agencyContributorURL;
+    protected String FTPURL;
 
     // IMAGE SECTION
 
-    private  ArrayList<ImageFormat> AcceptedFormats;
+    protected  ArrayList<ImageFormat> AcceptedFormats;
 
-    private int JPEGfileSizeLimit = 50;
-    private int TIFFfileSizeLimit = 4000;
-    private int EPSfileSizeLimit = 50;
-    private int minMP = 4;
-    private int maxMP = Integer.MAX_VALUE;
+    protected int JPEGfileSizeLimit;
+    protected int TIFFfileSizeLimit;
+    protected int EPSfileSizeLimit;
+    protected int minMP;
+    protected int maxMP;
 
     //dimension limits
-    private int minPixelsX;
-    private int maxPixelsX;
-    private int minPixelsY;
-    private int maxPixelsY;
+    protected int minPixelsX;
+    protected int maxPixelsX;
+    protected int minPixelsY;
+    protected int maxPixelsY;
 
 
     //keyword limits
-    private int minKeywordNumber;
-    private int maxKeywordNumber;
+    protected int minKeywordNumber;
+    protected int maxKeywordNumber;
 
 
     /* Description Limits */
-    private int minDescriptionCharacterNumber;
-    private int maxDescriptionCharacterNumber;
+    protected int minDescriptionCharacterNumber;
+    protected int maxDescriptionCharacterNumber;
 
 
     //  Title Limits
-    private int maxTitleLengthInChars;
-    private int minTitleLengthInChars;
-    private int maxTitleLengthInWords;
-    private int minTitleLengthInWords;
+    protected int maxTitleLengthInChars;
+    protected int minTitleLengthInChars;
+    protected int maxTitleLengthInWords;
+    protected int minTitleLengthInWords;
 
 
     //All the getters
@@ -50,9 +50,6 @@ public abstract class AgencyDetails {
         return FTPURL;
     }
 
-    public int getFileSizeLimit() {
-        return JPEGfileSizeLimit;
-    }
 
     public int getMinMP() {
         return minMP;
@@ -117,6 +114,11 @@ public abstract class AgencyDetails {
     public int getEPSfileSizeLimit() {
         return EPSfileSizeLimit;
     }
+
+    public int getJPEGFileSizeLimit() {
+        return JPEGfileSizeLimit;
+    }
+
 
     public boolean checkIfImageTypeIsAccepted(ImageFormat format)
     {
