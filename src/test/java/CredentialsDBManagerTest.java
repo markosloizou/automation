@@ -7,6 +7,8 @@ public class CredentialsDBManagerTest extends  TestCase{
     CredentialsDBManager DBM = new CredentialsDBManager("abc");
     @Test
     public void TableExistsTest(){
-        assertEquals(DBM.tableExists(), false);
+        assertEquals(DBM.tableExists(), true);
     }
+
+
 }
