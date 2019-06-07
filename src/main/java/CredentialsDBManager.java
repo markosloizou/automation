@@ -3,7 +3,7 @@ import java.sql.*;
 
 public class CredentialsDBManager {
     private String userPwd;
-    private String DBfilename = "credentials.db";
+    private String DBfilename = "stockautomation.db";
     private Connection connection;
     private String DBURL;
     private String tableName = "credentials";
@@ -64,8 +64,7 @@ public class CredentialsDBManager {
         try{
             Statement stmt = connection.createStatement();
             String sql = "CREATE TABLE IF NOT EXISTS CREDENTIALS"
-                    + " (ID             INT PRIMARY KEY     NOT NULL,"
-                    + " AGENCY          INT    NOT NULL, "
+                    + "(AGENCY          INT   PRIMARY KEY NOT NULL, "
                     + " UNAME           CHAR(50) NOT NULL,"
                     + "PWD              CHAR(50) NOT NULL,"
                     + "FTPUNAME         CHAR(50) NOT NULL,"
@@ -79,14 +78,50 @@ public class CredentialsDBManager {
 
     }
 
-    public void getFTPcredentials(Agency a)
+    public AgencyCredentials getFTPcredentials(Agency a)
     {
+        AgencyCredentials AC = new AgencyCredentials(null, null, null, null, null);
         if(!tableExists()) createTable();
+        try{
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM " + tableName + " WHERE AGENCY = " + a + ";";
+            ResultSet rc = stmt.executeQuery(sql);
+            AC = new AgencyCredentials(Agency.values()[rc.getInt("AGENCY")] , rc.getString("UNAME"), null, rc.getString("FTPUNAME"), rc.getString("FTPPWD").toCharArray()  );
+        }catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return AC;
     }
 
-    public void saveFTPcredentials(AgencyCredentials AC)
-    {
-        connectToDB();
+    public boolean saveFTPcredentials(AgencyCredentials AC) {
+        boolean check = false;
+        if (connection == null){
+            connectToDB();
+        }
+        try{
+            // the mysql insert statement
+            String query = " insert into users (AGENCY, UNAME, PWD, FTPUNAME, FTPPWD)"
+                    + " values (?, ?, ?, ?, ?)";
+
+            // create the mysql insert preparedstatement
+            PreparedStatement preparedStmt = connection.prepareStatement(query);
+            preparedStmt.setInt (1,  AC.getAgency().getCode());
+            preparedStmt.setString (2,  AC.getUname());
+            preparedStmt.setString   (3, String.valueOf( AC.getPwd()) );
+            preparedStmt.setString (4,  AC.getFTPuname());
+            preparedStmt.setString    (5, String.valueOf(AC.getFTPpwd()));
+
+            check = preparedStmt.execute();
+            if(!check)
+            {
+                System.out.println("Could not save new site credentials");
+            }
+        }catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return check;
     }
 }
 
