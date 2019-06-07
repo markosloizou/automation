@@ -55,7 +55,27 @@ public class CredentialsDBManager {
         return false;
     }
 
-    public static void createTable() {
+    public  void createTable() {
+        if(connection == null)
+        {
+            connectToDB();
+        }
+
+        try{
+            Statement stmt = connection.createStatement();
+            String sql = "CREATE TABLE IF NOT EXISTS CREDENTIALS"
+                    + " (ID             INT PRIMARY KEY     NOT NULL,"
+                    + " AGENCY          INT    NOT NULL, "
+                    + " UNAME           CHAR(50) NOT NULL,"
+                    + "PWD              CHAR(50) NOT NULL,"
+                    + "FTPUNAME         CHAR(50) NOT NULL,"
+                    + "FTPPWD           CHAR(50) NOT NULL"
+                    +  ")";
+            stmt.executeUpdate(sql);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+
 
     }
 
