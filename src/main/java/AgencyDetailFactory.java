@@ -22,6 +22,8 @@ public class AgencyDetailFactory {
             case ADOBESTOCK:
                 throw new IllegalArgumentException("Unsupported Agency");
                 //break;
+            case TEST:
+                return new TestDetails();
             default:
                 throw new IllegalArgumentException("Unknown Agency");
         }
