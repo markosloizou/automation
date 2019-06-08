@@ -23,7 +23,8 @@ public class AgencyDetailFactory {
                 throw new IllegalArgumentException("Unsupported Agency");
                 //break;
             case TEST:
-                return new TestDetails();
+                TestDetails testDetails = new TestDetails();
+                return testDetails;
             default:
                 throw new IllegalArgumentException("Unknown Agency");
         }
