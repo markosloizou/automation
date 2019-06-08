@@ -1,48 +1,63 @@
 import java.io.File;
 import java.sql.*;
 
+
 public class CredentialsDBManager {
     private String userPwd;
     private String DBfilename = "stockautomation.db";
     private Connection connection;
     private String DBURL;
-    private String tableName = "credentials";
+    private String tableName = "CREDENTIALS";
 
     public CredentialsDBManager(String pwd) {
         userPwd = pwd;
 
         String home = System.getProperty("user.home");
-        File file = new java.io.File(home + "/sqlite/db/" + DBfilename);
+        String filepath =   home + "/IdeaProjects/stockautomator/sqlite/" + DBfilename;
+        File file = new java.io.File(filepath);
         String url = file.getAbsolutePath();
+        url = "jdbc:sqlite:" + url;
+
         DBURL = url;
+        try {
+            Class.forName("org.sqlite.JDBC");
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        connection = null;
     }
 
 
-    private void connectToDB() {
+    public boolean connectToDB() {
         try {
+
             connection = DriverManager.getConnection(DBURL);
             if (connection != null) {
                 DatabaseMetaData meta = connection.getMetaData();
-                System.out.println("The driver name is " + meta.getDriverName());
-                System.out.println("A new database has been created.");
+            } else {
+                System.out.println("Could not connect to database");
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
+        if (connection != null) {
+            return true;
+        } else {
+            System.out.println("Could not connect to DB");
+            return false;
+        }
     }
 
     public boolean tableExists(){
-        if(connection == null)
-        {
-            connectToDB();
-        }
-
+        connectToDB();
+        ResultSet rs = null;
         try {
             DatabaseMetaData md = connection.getMetaData();
-            ResultSet rs = md.getTables(null, null, "%", null);
+            rs = md.getTables(null, null, "%", null);
 
             while (rs.next()) {
-                if(rs.getString("TABLE_NAME") == tableName) {
+                if(rs.getString("TABLE_NAME").equals(tableName)) {
                     return true;
                 }
             }
@@ -50,17 +65,29 @@ public class CredentialsDBManager {
 
         }catch (SQLException e) {
             e.printStackTrace();
+
+        }  finally{
+            if(rs != null){
+                try{
+                    rs.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
+            if(connection != null){
+                try {
+                    connection.close();
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
         }
 
         return false;
     }
 
     public  void createTable() {
-        if(connection == null)
-        {
-            connectToDB();
-        }
-
+        connectToDB();
         try{
             Statement stmt = connection.createStatement();
             String sql = "CREATE TABLE IF NOT EXISTS CREDENTIALS"
@@ -73,55 +100,74 @@ public class CredentialsDBManager {
             stmt.executeUpdate(sql);
         }catch(SQLException e){
             e.printStackTrace();
+        }  finally {
+            try { connection.close(); } catch (Exception e) { /* ignored */ }
         }
 
 
     }
 
-    public AgencyCredentials getFTPcredentials(Agency a)
-    {
+    public AgencyCredentials getFTPcredentials(Agency a) {
+
+
         AgencyCredentials AC = new AgencyCredentials(null, null, null, null, null);
+        ResultSet rs = null;
         if(!tableExists()) createTable();
+        connectToDB();
         try{
             Statement stmt = connection.createStatement();
-            String sql = "SELECT * FROM " + tableName + " WHERE AGENCY = " + a + ";";
-            ResultSet rc = stmt.executeQuery(sql);
-            AC = new AgencyCredentials(Agency.values()[rc.getInt("AGENCY")] , rc.getString("UNAME"), null, rc.getString("FTPUNAME"), rc.getString("FTPPWD").toCharArray()  );
+            String sql = "SELECT * FROM " + tableName + " WHERE AGENCY = " + a.getCode() + ";";
+            rs = stmt.executeQuery(sql);
+            AC = new AgencyCredentials(Agency.get(rs.getInt("Agency")), rs.getString("UNAME"), null, rs.getString("FTPUNAME"), rs.getString("FTPPWD").toCharArray()  );
         }catch (SQLException e)
         {
             e.printStackTrace();
+        } finally{
+            try{
+                rs.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
         }
         return AC;
     }
 
-    public boolean saveFTPcredentials(AgencyCredentials AC) {
+    public void saveFTPcredentials(AgencyCredentials AC) {
         boolean check = false;
-        if (connection == null){
-            connectToDB();
-        }
+        PreparedStatement preparedStmt = null;
+        if(!tableExists()) createTable();
+        connectToDB();
         try{
             // the mysql insert statement
-            String query = " insert into users (AGENCY, UNAME, PWD, FTPUNAME, FTPPWD)"
+            String query = " insert or replace into " + tableName +  " (AGENCY, UNAME, PWD, FTPUNAME, FTPPWD)"
                     + " values (?, ?, ?, ?, ?)";
 
             // create the mysql insert preparedstatement
-            PreparedStatement preparedStmt = connection.prepareStatement(query);
+            preparedStmt = connection.prepareStatement(query);
             preparedStmt.setInt (1,  AC.getAgency().getCode());
             preparedStmt.setString (2,  AC.getUname());
             preparedStmt.setString   (3, String.valueOf( AC.getPwd()) );
             preparedStmt.setString (4,  AC.getFTPuname());
             preparedStmt.setString    (5, String.valueOf(AC.getFTPpwd()));
 
-            check = preparedStmt.execute();
-            if(!check)
-            {
-                System.out.println("Could not save new site credentials");
-            }
+            preparedStmt.execute();
+
         }catch (SQLException e)
         {
             e.printStackTrace();
+        }finally {
+            if (preparedStmt != null) {
+                try {
+                    preparedStmt.close();
+                } catch (SQLException e) { /* ignored */}
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) { /* ignored */}
+            }
         }
-        return check;
+
     }
 }
 
