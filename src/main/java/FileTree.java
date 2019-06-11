@@ -1,7 +1,9 @@
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
@@ -30,29 +32,37 @@ public class FileTree extends JFrame implements TreeSelectionListener, TreeWillE
             root.add(node);
             addChildren(node);
         }
-        //DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
-        //DefaultMutableTreeNode child1 = new DefaultMutableTreeNode("child 1");
-        //DefaultMutableTreeNode child2 = new DefaultMutableTreeNode("child 2");
-        //root.add(child1);
-        //root.add(child2);
-        //create the tree by passing in the root node
+
+        Container content = this.getContentPane();
+        content.setBackground(Color.DARK_GRAY);
+
         DefaultTreeModel treeModel = new DefaultTreeModel(root,true);
         tree = new JTree(treeModel);
         JScrollPane scrollPane = new JScrollPane(tree);
-        add(scrollPane);
+        content.add(scrollPane);
+        //add(scrollPane);
+        //Container.add(scrollPane, Integer.parseInt(BorderLayout.CENTER));
+
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setOpaque(false);
 
         tree.setEditable(true);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setShowsRootHandles(true);
+        tree.setOpaque(false);
 
 
         //Listen for when the selection changes.
         tree.addTreeSelectionListener(this);
         tree.addTreeWillExpandListener(this);
+        tree.setCellRenderer(new MyCellRenderer());
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setBackground(Color.darkGray);
+        this.setForeground(Color.gray);
         this.setTitle("JTree Example");
         this.pack();
+        this.setSize(400,600);
         this.setVisible(true);
     }
 
@@ -166,6 +176,45 @@ public class FileTree extends JFrame implements TreeSelectionListener, TreeWillE
             }
         });
         return directories;
+    }
+
+
+
+    private class MyCellRenderer extends DefaultTreeCellRenderer {
+
+        @Override
+        public Color getBackgroundNonSelectionColor() {
+            return Color.darkGray;
+        }
+
+        @Override
+        public Color getBackgroundSelectionColor() {
+            return Color.lightGray;
+        }
+
+        @Override
+        public Color getBackground() {
+            return Color.darkGray;
+        }
+
+        @Override
+        public Color getTextSelectionColor(){
+            return Color.white;
+        }
+
+        @Override
+        public Color getTextNonSelectionColor(){
+            return Color.white;
+        }
+
+        @Override
+        public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel, final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
+            final Component ret = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+
+            final DefaultMutableTreeNode node = ((DefaultMutableTreeNode) (value));
+            this.setText(value.toString());
+            return ret;
+        }
     }
 
 }
