@@ -13,7 +13,7 @@ public class FTPUploader extends Thread{
     private FTPClient client;
     private boolean loggedin;
     private static int guiUploadRateRefreshTime = 500;
-    private static int packetSize = 16384;
+    private static int packetSize = 16384*2;
     private long totalUploadSize = 0;
     private int previousPercentage = -1;
     private long previousTime = System.currentTimeMillis();
