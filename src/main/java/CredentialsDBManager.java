@@ -132,8 +132,32 @@ public class CredentialsDBManager {
         return AC;
     }
 
+    public AgencyCredentials getAgencyCredentials(Agency a) {
+
+
+        AgencyCredentials AC = new AgencyCredentials(null, null, null, null, null);
+        ResultSet rs = null;
+        if(!tableExists()) createTable();
+        connectToDB();
+        try{
+            Statement stmt = connection.createStatement();
+            String sql = "SELECT * FROM " + tableName + " WHERE AGENCY = " + a.getCode() + ";";
+            rs = stmt.executeQuery(sql);
+            AC = new AgencyCredentials(Agency.get(rs.getInt("Agency")), rs.getString("UNAME"), rs.getString("PWD").toCharArray(), rs.getString("FTPUNAME"), null );
+        }catch (SQLException e)
+        {
+            e.printStackTrace();
+        } finally{
+            try{
+                rs.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return AC;
+    }
+
     public void saveFTPcredentials(AgencyCredentials AC) {
-        boolean check = false;
         PreparedStatement preparedStmt = null;
         if(!tableExists()) createTable();
         connectToDB();
