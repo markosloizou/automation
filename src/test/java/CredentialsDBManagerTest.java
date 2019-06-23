@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 
 public class CredentialsDBManagerTest extends  TestCase{
     CredentialsDBManager DBM = new CredentialsDBManager("abc");
+    private String password = "fLDScD4Ynth0p4OJ6bW6qCxjh";
 
     @Test
     public void testConnection()
@@ -22,8 +23,6 @@ public class CredentialsDBManagerTest extends  TestCase{
 
     @Test
     public void testFTPUserSave(){
-        String password = "5p2tvn92R0di8FdiLCfzeeT0b";
-
         AgencyCredentials AC_true = new AgencyCredentials(Agency.TEST, "dlpuser@dlptest.com", password.toCharArray(),"dlpuser@dlptest.com", password.toCharArray());
         DBM.saveFTPcredentials(AC_true);
 
@@ -40,7 +39,6 @@ public class CredentialsDBManagerTest extends  TestCase{
     @Test
     public void testGetFTPUsertest()
     {
-        String password = "5p2tvn92R0di8FdiLCfzeeT0b";
         AgencyCredentials AC_true = new AgencyCredentials(Agency.TEST, "dlpuser@dlptest.com", password.toCharArray(),"dlpuser@dlptest.com", password.toCharArray());
 
         AgencyCredentials AC = DBM.getFTPcredentials(Agency.TEST);
@@ -56,7 +54,6 @@ public class CredentialsDBManagerTest extends  TestCase{
     @Test
     public void testGetAgencyUsertest()
     {
-        String password = "5p2tvn92R0di8FdiLCfzeeT0b";
         AgencyCredentials AC_true = new AgencyCredentials(Agency.TEST, "dlpuser@dlptest.com", password.toCharArray(),"dlpuser@dlptest.com", password.toCharArray());
 
         AgencyCredentials AC = DBM.getAgencyCredentials(Agency.TEST);
