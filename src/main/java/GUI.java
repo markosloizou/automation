@@ -363,4 +363,26 @@ public class GUI {
     }
 
 
+    private class ftpConcreteObserver implements FTPObserver{
+
+        public ftpConcreteObserver(){
+            ftpUploadStateSubject.getInstance().attachObserver(this); //make itself an observer
+        }
+
+        @Override
+        public void update() {
+            //TODO get state and write to GUI agencies
+
+            //First get Agencies
+
+            //Then get states of each agency and update agency by agency
+
+        }
+
+        @Override
+        public void update(Agency a) {
+            //Get state of single agency and update
+        }
+    }
+
 }
