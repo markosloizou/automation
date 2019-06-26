@@ -90,6 +90,7 @@ public class FTPUploader extends Thread{
             ex.printStackTrace();
         }
         state.setUploading(false);
+        stateSubject.setState(state);
         if(count == files.size()) return  true;
         else return false;
     }
