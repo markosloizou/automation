@@ -13,11 +13,20 @@ public class FTPUploader extends Thread{
     private FTPClient client;
     private boolean loggedin;
     private static int guiUploadRateRefreshTime = 500;
-    private static int packetSize = 16384*2;
+    private static int packetSize = 16384;
     private long totalUploadSize = 0;
+    private long cumulativeUpload = 0;
+    private int previousTotalPercentage = -1;
     private int previousPercentage = -1;
     private long previousTime = System.currentTimeMillis();
     private long previousUploadSize = 0;
+    private ftpUploadStateSubject stateSubject = ftpUploadStateSubject.getInstance();
+    private double uploadSpeed = -1;
+    private static double decayRate= 0.1; //TODO try various decay rates
+    private int uplodedFilesCount = 0;
+    private int errors = 0;
+    private long totalFileSize;
+    private ftpUploadState state;
 
     public FTPUploader(Agency a, ArrayList<String> filesToUpload){
         AgencyDetailFactory agencyDetailFactory = new AgencyDetailFactory();
@@ -31,6 +40,9 @@ public class FTPUploader extends Thread{
         AgencyCredentials AC = credentialsDB.getFTPcredentials(a);
         user = AC.getUname();
         password = new String(AC.getFTPpwd());
+
+        state = new ftpUploadState(a);
+        state.setToUpload(filesToUpload.size());
     }
 
     public boolean login(){
@@ -45,6 +57,12 @@ public class FTPUploader extends Thread{
     }
 
     public boolean uploadFiles(){
+        state.setUploading(true);
+        totalFileSize = 0;
+        for(String f: files){
+            totalFileSize += (new File(f)).length();
+        }
+
         if(!loggedin) {
             if(!login()){
                 //TODO add error message in the  GUI?
@@ -56,6 +74,12 @@ public class FTPUploader extends Thread{
         for(String f: files) {
             boolean uploaded = uploadFile(f);
             if(uploaded) count++;
+            else{
+                errors++;
+                state.setErrors(errors);
+            }
+            uplodedFilesCount++;
+            state.setUploaded(uplodedFilesCount);
         }
         try {
             if (client.isConnected()) {
@@ -65,6 +89,7 @@ public class FTPUploader extends Thread{
         }catch (IOException ex){
             ex.printStackTrace();
         }
+        state.setUploading(false);
         if(count == files.size()) return  true;
         else return false;
     }
@@ -126,6 +151,7 @@ public class FTPUploader extends Thread{
             while((read = inputStream.read(bytesIn)) != -1){
                 outputStream.write(bytesIn, 0, read);
                 uploaded += packetSize;
+                cumulativeUpload += packetSize;
                 printProgress(uploaded);
             }
             inputStream.close();
@@ -144,10 +170,19 @@ public class FTPUploader extends Thread{
         return true;
     }
 
+    private void progress(){
+        int percentage = (int)((float)cumulativeUpload*1000/totalFileSize);
+        if(previousTotalPercentage != percentage) {
+            state.setTotalPercentage(percentage);
+            stateSubject.setState(state);
+        }
+    }
+
     private void printProgress(long uploaded){
         int percentage = (int)(uploaded*100/totalUploadSize);
         try {
             if (previousPercentage != percentage) {
+
                 long currentTime = System.currentTimeMillis();
                 long dt = currentTime - previousTime;
                 float speed = (uploaded - previousUploadSize)  / dt;
@@ -156,10 +191,17 @@ public class FTPUploader extends Thread{
                 previousTime = currentTime;
                 previousPercentage = percentage;
 
-                System.out.println("Progress: " + percentage + "%\t\tSpeed: " + speed + "KB/s");
+                state.setCurrentPercentage(percentage);
+
+                System.out.println("Progress: " + percentage + "%\t\tSpeed: " + movingAverageUpdate(speed) + "KB/s");
             }
         } catch(ArithmeticException e){/**/}
     }
 
-
+    private double movingAverageUpdate(float currentSpeed){
+        if(uploadSpeed < 0) uploadSpeed = currentSpeed;
+        uploadSpeed = (1-decayRate) * uploadSpeed + decayRate*currentSpeed;
+        state.setUploadSpeed(uploadSpeed);
+        return uploadSpeed;
+    }
 }
