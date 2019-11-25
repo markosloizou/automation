@@ -1,6 +1,6 @@
-# Stock automation
+# Stock submission automation
 
-Java appliaction for uploading  and submittinh stock photos to online agencies. 
+Java appliaction for uploading  and submitting stock photos to online agencies. 
 
 ## Current Work
  
@@ -8,7 +8,7 @@ Java appliaction for uploading  and submittinh stock photos to online agencies.
 * Site credentials (uname & pwd) database storage, needs some encryption
 * Agency details using Factory method
 * Recurrent Neural Network can generate image descreption (caption). 
-* Results are about 50% good 50% incomprehensible. Need a better GPU to continue 
+* Results are about 50% good 50% incomprehensible. Need a better GPU to continue, current one does not have enough memory 
 
 Currently working on GUI
 
