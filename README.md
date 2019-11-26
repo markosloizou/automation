@@ -14,3 +14,4 @@ Currently working on GUI
 
 ## Future Work
 * Metadata management 
+* Use of a Convolutional Neural Network to generate keywords 
